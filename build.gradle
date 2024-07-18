@@ -1,0 +1,125 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/maven/' }
+
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
+        classpath group: 'org.spongepowered', name: 'mixingradle', version: '0.7-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'org.spongepowered.mixin'
+version = '1.2.1'
+group = 'net.lyof.combat_bash'
+archivesBaseName = 'CombatBash-1.19.2'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: 'official', version: '1.19.2'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            arg '-mixin.config=combat_bash.mixins.json'
+            property 'forge.logging.markers', 'SCAN,REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                combat_bash {
+                    source sourceSets.main
+                }
+            }
+
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
+        server {
+            workingDirectory project.file('run')
+            arg '-mixin.config=combat_bash.mixins.json'
+            property 'forge.logging.markers', 'SCAN,REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                combat_bash {
+                    source sourceSets.main
+                }
+            }
+
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
+        data {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'SCAN,REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'combat_bash', '--all', '--output', file('src/generated/resources/')
+            mods {
+                combat_bash {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin {
+    //add sourceSets.main, "combat_bash.refmap.json"
+    config "combat_bash.mixins.json"
+
+    debug.verbose = true
+    debug.export = true
+    dumpTargetOnFailure = true
+}
+
+repositories {
+    maven { url = 'https://repo.spongepowered.org/maven/' }
+    mavenCentral()
+
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
+
+    maven {
+        name "KosmX's maven"
+        url 'https://maven.kosmx.dev/'
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.13'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation "maven.modrinth:combat-roll:1.1.5+1.19-forge"
+    implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:1.0.2+1.19.4")
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : "combat_bash",
+                'Specification-Vendor'  : "Lyof",
+                'Specification-Version' : '1',
+                'Implementation-Title'  : "combat_bash",
+                'Implementation-Version': "1.0",
+                'Implementation-Vendor' : "Lyof",
+                'MixinConfigs'          : 'combat_bash.mixins.json',
+        ])
+    }
+}
+
+jar.finalizedBy('reobfJar')
+
+task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allJava
+}
