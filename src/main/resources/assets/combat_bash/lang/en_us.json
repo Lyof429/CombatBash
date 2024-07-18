@@ -1,0 +1,6 @@
+{
+  "effect.combat_bash.rolling": "Rolling",
+
+  "enchantment.combat_bash.inertia": "Inertia",
+  "enchantment.combat_bash.inertia.desc": "Increases damage from bash."
+}

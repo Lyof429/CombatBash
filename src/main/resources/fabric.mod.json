@@ -1,0 +1,36 @@
+{
+	"schemaVersion": 1,
+	"id": "combat_bash",
+	"version": "${version}",
+	"name": "Combat Bash",
+	"description": "Turning the defensive Combat Roll into an offensive maneuver",
+	"authors": [
+		"Lyof",
+		"Commissioned by Nekomaster"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/combat_bash/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.lyof.combat_bash.CombatBash"
+		]
+	},
+	"mixins": [
+		"combat_bash.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"combatroll": ">=1.0.0"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
