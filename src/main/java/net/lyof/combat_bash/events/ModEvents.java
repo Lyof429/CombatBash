@@ -35,10 +35,10 @@ public class ModEvents {
     }
 
     public static final ConfigEntry<Boolean> NEEDS_ENCHANT = new ConfigEntry<>("combat_bash.needs_enchantment", false);
-    public static final ConfigEntry<Float> DAMAGE = new ConfigEntry<>("combat_bash.damage", 4f);
+    public static final ConfigEntry<Double> DAMAGE = new ConfigEntry<>("combat_bash.damage", 4d);
     public static final ConfigEntry<Double> KB_PLAYER = new ConfigEntry<>("combat_bash.player_knockback", 1d);
     public static final ConfigEntry<Double> KB_TARGET = new ConfigEntry<>("combat_bash.target_knockback", 1d);
-    public static final ConfigEntry<Float> EXHAUSTION = new ConfigEntry<>("combat_bash.extra_exhaustion", 0.03f);
+    public static final ConfigEntry<Double> EXHAUSTION = new ConfigEntry<>("combat_bash.extra_exhaustion", 0.03);
     public static final ConfigEntry<Boolean> IMMUNITY = new ConfigEntry<>("combat_bash.roll_immunity", true);
     public static final ConfigEntry<Boolean> IGNORE_PLAYERS = new ConfigEntry<>("combat_bash.ignore_players", true);
 
@@ -60,7 +60,7 @@ public class ModEvents {
         List<Entity> entities = player.getLevel().getEntities(null, new AABB(pos).inflate(0.7));
         entities.remove(player);
 
-        float damage = DAMAGE.get() + EnchantmentHelper.getEnchantmentLevel(ModEnchants.INERTIA.get(), player) * 2;
+        float damage = DAMAGE.get().floatValue() + EnchantmentHelper.getEnchantmentLevel(ModEnchants.INERTIA.get(), player) * 2;
 
         String name = player.getDisplayName().getString();
         boolean result = false;
@@ -80,7 +80,7 @@ public class ModEvents {
             player.setDeltaMovement(velocity.scale(-KB_PLAYER.get()).add(0, 0.3, 0));
             target.setDeltaMovement(velocity.scale(KB_TARGET.get()).add(0, 0.3, 0));
 
-            player.causeFoodExhaustion(EXHAUSTION.get());
+            player.causeFoodExhaustion(EXHAUSTION.get().floatValue());
         }
         return result;
     }
