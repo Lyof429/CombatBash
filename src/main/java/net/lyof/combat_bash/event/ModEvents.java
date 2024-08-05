@@ -55,7 +55,7 @@ public class ModEvents {
         BlockPos pos = player.getBlockPos();
         List<Entity> entities = player.getWorld().getOtherEntities(player, new Box(pos).expand(0.7));
 
-        float damage = ConfigEntries.damage + EnchantmentHelper.getEquipmentLevel(ModEnchants.INERTIA, player) * 2;
+        float damage = (float) ConfigEntries.damage + EnchantmentHelper.getEquipmentLevel(ModEnchants.INERTIA, player) * 2;
 
         UUID uuid = player.getUuid();
         boolean result = false;
@@ -76,7 +76,7 @@ public class ModEvents {
             target.setVelocity(velocity.normalize().multiply(ConfigEntries.targetKnockback).add(0, 0.3, 0));
             player.velocityModified = true;
 
-            player.addExhaustion(ConfigEntries.extraExhaustion);
+            player.addExhaustion((float) ConfigEntries.extraExhaustion);
         }
         return result;
     }
