@@ -6,7 +6,7 @@ public class ConfigEntries {
         damage = new ConfigEntry<>("combat_bash.damage", 4d).get();
         playerKnockback = new ConfigEntry<>("combat_bash.player_knockback", 1).get();
         targetKnockback = new ConfigEntry<>("combat_bash.target_knockback", 1).get();
-        extraExhaustion = new ConfigEntry<>("combat_bash.extra_exhaustion", 0.03).get();
+        extraExhaustion = new ConfigEntry<>("combat_bash.extra_exhaustion", 0.03d).get();
         immunity = new ConfigEntry<>("combat_bash.roll_immunity", true).get();
         ignorePlayers = new ConfigEntry<>("combat_bash.ignore_players", true).get();
 
