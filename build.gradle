@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
-version = '1.2.1'
+version = '1.2.2'
 group = 'net.lyof.combat_bash'
 archivesBaseName = 'CombatBash-1.19.2'
 

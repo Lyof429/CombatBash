@@ -3,9 +3,7 @@
   "minVersion": "0.8",
   "package": "net.lyof.combat_bash.mixins",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "LivingEntityMixin"
-  ],
+  "mixins": [],
   "client": [],
   "server": [],
   "injectors": {

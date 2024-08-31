@@ -18,6 +18,8 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -108,5 +110,17 @@ public class ModEvents {
 
         entity.invulnerableTime = CombatBash.FRAMES.get(entity.getStringUUID()).get(player.getStringUUID());
         CombatBash.FRAMES.get(entity.getStringUUID()).replace(player.getStringUUID(), 20);
+    }
+
+    @SubscribeEvent
+    public static void onEntityTick(LivingEvent.LivingTickEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (!entity.getLevel().isClientSide())
+            CombatBash.tickFrames(entity.getStringUUID());
+    }
+
+    @SubscribeEvent
+    public static void onEntityDeath(LivingDeathEvent event) {
+        CombatBash.FRAMES.remove(event.getEntity().getStringUUID());
     }
 }
