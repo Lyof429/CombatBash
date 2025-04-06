@@ -2,5 +2,7 @@
   "effect.combat_bash.rolling": "Rolling",
 
   "enchantment.combat_bash.inertia": "Inertia",
-  "enchantment.combat_bash.inertia.desc": "Increases damage from bash."
+  "enchantment.combat_bash.inertia.desc": "Increases damage from bash.",
+  "enchantment.combat_bash.swiftfooted": "Swiftfooted",
+  "enchantment.combat_bash.swiftfooted.desc": "Makes you faster after a dash."
 }

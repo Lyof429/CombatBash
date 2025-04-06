@@ -12,7 +12,9 @@ import net.lyof.combat_bash.enchant.ModEnchants;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -39,6 +41,10 @@ public class ModEvents {
     }
 
     public static void onPlayerStartedRolling(ServerPlayerEntity player, Vec3d velocity) {
+        int swiftfooted = EnchantmentHelper.getEquipmentLevel(ModEnchants.SWIFTFOOTED, player);
+        if (swiftfooted > 0)
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 40, swiftfooted));
+
         if (EnchantmentHelper.getEquipmentLevel(ModEnchants.INERTIA, player) <= 0 && ConfigEntries.needsEnchantment) return;
 
         UUID uuid = player.getUuid();
