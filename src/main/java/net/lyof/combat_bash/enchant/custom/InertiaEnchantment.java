@@ -7,7 +7,7 @@ import net.minecraft.entity.EquipmentSlot;
 
 public class InertiaEnchantment extends Enchantment {
     public InertiaEnchantment() {
-        super(Rarity.UNCOMMON, EnchantmentTarget.ARMOR, new EquipmentSlot[] {EquipmentSlot.LEGS});
+        super(Rarity.UNCOMMON, EnchantmentTarget.ARMOR_LEGS, new EquipmentSlot[] {EquipmentSlot.LEGS});
     }
 
     @Override
