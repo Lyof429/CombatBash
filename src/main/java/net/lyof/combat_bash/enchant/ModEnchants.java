@@ -1,7 +1,7 @@
 package net.lyof.combat_bash.enchant;
 
 import net.lyof.combat_bash.CombatBash;
-import net.lyof.combat_bash.enchant.custom.InertiaEnchantment;
+import net.lyof.combat_bash.enchant.custom.DashEnchantment;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -13,7 +13,10 @@ public class ModEnchants {
             DeferredRegister.create(ForgeRegistries.ENCHANTMENTS, CombatBash.MOD_ID);
 
     public static RegistryObject<Enchantment> INERTIA = ENCHANTS.register("inertia",
-            () -> new InertiaEnchantment());
+            () -> new DashEnchantment());
+
+    public static RegistryObject<Enchantment> SWIFTFOOTED = ENCHANTS.register("swiftfooted",
+            () -> new DashEnchantment());
 
     public static void register(IEventBus eventbus) {
         ENCHANTS.register(eventbus);

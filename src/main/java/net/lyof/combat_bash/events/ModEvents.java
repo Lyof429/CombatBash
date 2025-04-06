@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -45,6 +46,10 @@ public class ModEvents {
     public static final ConfigEntry<Boolean> IGNORE_PLAYERS = new ConfigEntry<>("combat_bash.ignore_players", true);
 
     public static void onPlayerStartedRolling(ServerPlayer player, Vec3 velocity) {
+        int swiftfooted = EnchantmentHelper.getEnchantmentLevel(ModEnchants.SWIFTFOOTED.get(), player);
+        if (swiftfooted > 0)
+            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 40, swiftfooted));
+
         if (EnchantmentHelper.getEnchantmentLevel(ModEnchants.INERTIA.get(), player) <= 0 && NEEDS_ENCHANT.get()) return;
 
         String name = player.getDisplayName().getString();
