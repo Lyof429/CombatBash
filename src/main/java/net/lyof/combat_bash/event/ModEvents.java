@@ -1,22 +1,17 @@
 package net.lyof.combat_bash.event;
 
-import com.google.common.eventbus.Subscribe;
 import net.combatroll.CombatRoll;
 import net.combatroll.api.event.ServerSideRollEvents;
-import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.lyof.combat_bash.CombatBash;
 import net.lyof.combat_bash.config.ConfigEntries;
 import net.lyof.combat_bash.effect.ModEffects;
 import net.lyof.combat_bash.enchant.ModEnchants;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -41,11 +36,11 @@ public class ModEvents {
     }
 
     public static void onPlayerStartedRolling(ServerPlayerEntity player, Vec3d velocity) {
-        int swiftfooted = EnchantmentHelper.getEquipmentLevel(ModEnchants.SWIFTFOOTED, player);
+        int swiftfooted = ModEnchants.getLevel(ModEnchants.SWIFTFOOTED, player);
         if (swiftfooted > 0)
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 40, swiftfooted));
+            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 20, swiftfooted));
 
-        if (EnchantmentHelper.getEquipmentLevel(ModEnchants.INERTIA, player) <= 0 && ConfigEntries.needsEnchantment) return;
+        if (ModEnchants.getLevel(ModEnchants.INERTIA, player) <= 0 && ConfigEntries.needsEnchantment) return;
 
         UUID uuid = player.getUuid();
         if (VELOCITIES.containsKey(uuid))   VELOCITIES.replace(uuid, velocity);
@@ -61,7 +56,7 @@ public class ModEvents {
         BlockPos pos = player.getBlockPos();
         List<Entity> entities = player.getWorld().getOtherEntities(player, new Box(pos).expand(0.7));
 
-        float damage = (float) ConfigEntries.damage + EnchantmentHelper.getEquipmentLevel(ModEnchants.INERTIA, player) * 2;
+        float damage = (float) ConfigEntries.damage + ModEnchants.getLevel(ModEnchants.INERTIA, player) * 2;
 
         UUID uuid = player.getUuid();
         boolean result = false;

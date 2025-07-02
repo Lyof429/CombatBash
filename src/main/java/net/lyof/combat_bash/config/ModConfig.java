@@ -96,19 +96,44 @@ public class ModConfig {
 {
   "TECHNICAL": {
     "VERSION_DO_NOT_EDIT": 1.1,
-    "FORCE_RELOAD": false
+    "FORCE_RESET": false
   },
 
   "combat_bash": {
+    // If true, bashing will not be available unless you have a piece of armor with Inertia on it
     "needs_enchantment": false,
+    // Base damage dealt by a bash (in half hearts)
     "damage": 4,
+    // How strongly will the rolling player be knocked backwards after a bash
     "player_knockback": 1,
+    // How strongly will the hit entity be knocked backwards after a bash
     "target_knockback": 1,
+    // Food points to be deducted from the rolling player after a bash
     "extra_exhaustion": 0.03,
+    // Should players be immune to damage during rolls
     "roll_immunity": true,
+    // If false, rolling into other players will hit them with a bash
     "ignore_players": true
   },
   
+  "enchantments": {
+    "inertia": {
+      // Set to 0 to disable
+      "max_level": 3,
+      // Which armor piece can get this enchantment. Must be one of "HELMET", "CHESTPLATE", "LEGGINGS" or "BOOTS"
+      "target": "LEGGINGS"
+    },
+    "swiftfooted": {
+      // Set to 0 to disable
+      "max_level": 3,
+      // Which armor piece can get this enchantment. Must be one of "HELMET", "CHESTPLATE", "LEGGINGS" or "BOOTS"
+      "target": "LEGGINGS"
+    }
+  },
+  
+  // If true, hit mobs will track their immunity frames to be per player and not global.
+  //   Useful if you want to tackle bosses with friends
+  //   Disable if you encounter issues with very fast hitting weapons not registering hits properly
   "enable_multiplayer_immunity_frames": true
 }""";
 }

@@ -1,7 +1,6 @@
 package net.lyof.combat_bash;
 
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.lyof.combat_bash.config.ModConfig;
