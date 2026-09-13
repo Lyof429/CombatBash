@@ -1,4 +1,4 @@
-package net.lyof.combat_bash.config;
+package net.lyof.combat_bash.setup;
 
 import net.lcc.sollib.api.common.config.ConfigEntry;
 import net.lcc.sollib.api.common.config.builder.IJsonBuilder;
@@ -27,6 +27,13 @@ public class ModConfig {
                 .comment("If false, rolling into other players will hit them with a bash")
                 .add("ignore_players", true)
                 .bind(ignorePlayers)
+        )
+        .comment()
+        .comment("Set these to false to disable the corresponding enchantment from appearing in game (disables at registry level)")
+        .comment("  Only applies to Combat Bash enchantments")
+        .addObject("enabled_enchants", enabled_enchants -> enabled_enchants
+                .add("inertia", true)
+                .add("swiftfooted", true)
         )
         .comment()
         .comment("If true, hit mobs will track their immunity frames to be per player and not global.")

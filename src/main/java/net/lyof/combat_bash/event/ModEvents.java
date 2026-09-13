@@ -1,23 +1,18 @@
 package net.lyof.combat_bash.event;
 
 import net.combat_roll.CombatRollMod;
-import net.combat_roll.api.CombatRoll;
 import net.combat_roll.api.event.ServerSideRollEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.lyof.combat_bash.CombatBash;
 import net.lyof.combat_bash.api.EnchantHelper;
 import net.lyof.combat_bash.api.inject.MultiImmunityEntity;
 import net.lyof.combat_bash.api.inject.RollingPlayer;
-import net.lyof.combat_bash.config.ModConfig;
-import net.lyof.combat_bash.effect.ModEffects;
+import net.lyof.combat_bash.setup.ModConfig;
 import net.lyof.combat_bash.effect.custom.RollingEffect;
-import net.lyof.combat_bash.enchant.ModEnchants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -33,8 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ModEvents {
-    public static Map<UUID, Vec3> VELOCITIES = new HashMap<>();
-
     public static void register() {
         ServerSideRollEvents.PLAYER_START_ROLLING.register(ModEvents::onPlayerStartedRolling);
         AttackEntityCallback.EVENT.register(ModEvents::beforeEntityHurt);
@@ -66,6 +59,8 @@ public class ModEvents {
 
             result = true;
 
+            if (player instanceof ServerPlayer p)
+                EnchantHelper.onBash(p, target, player.damageSources().playerAttack(player));
             target.hurt(player.damageSources().playerAttack(player), damage);
 
             Vec3 velocity = ((RollingPlayer) player).cbash_getRollVelocity();

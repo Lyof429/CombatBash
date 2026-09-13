@@ -1,0 +1,36 @@
+{
+  "description": {
+    "translate": "enchantment.combat_bash.inertia"
+  },
+  "max_level": 3,
+  "weight": 4,
+  "supported_items": "#minecraft:enchantable/leg_armor",
+  "exclusive_set": "#combat_bash:exclusive_set/inertia",
+  "slots": [
+    "legs"
+  ],
+  "effects": {
+    "combat_bash:bash_damage": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 2,
+            "per_level_above_first": 2
+          }
+        }
+      }
+    ]
+  },
+
+  "anvil_cost": 2,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 6
+  },
+  "max_cost": {
+    "base": 11,
+    "per_level_above_first": 6
+  }
+}

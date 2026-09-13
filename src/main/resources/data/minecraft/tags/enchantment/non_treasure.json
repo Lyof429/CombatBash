@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "combat_bash:inertia",
+      "required": false
+    },
+    {
+      "id": "combat_bash:swiftfooted",
+      "required": false
+    }
+  ]
+}

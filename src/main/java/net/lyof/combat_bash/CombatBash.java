@@ -3,7 +3,7 @@ package net.lyof.combat_bash;
 import net.fabricmc.api.ModInitializer;
 import net.lcc.sollib.api.common.logger.SolLogger;
 import net.lcc.sollib.api.common.registry.SolModContainer;
-import net.lyof.combat_bash.config.ModConfig;
+import net.lyof.combat_bash.setup.ModConfig;
 import net.lyof.combat_bash.effect.ModEffects;
 import net.lyof.combat_bash.enchant.ModEnchants;
 import net.lyof.combat_bash.event.ModEvents;
@@ -14,7 +14,7 @@ public class CombatBash implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		MOD.createConfig("combat_bash", 2.0, ModConfig::build);
+		MOD.createConfig(MOD_ID, 2.0, ModConfig::build);
 		ModEvents.register();
 
 		ModEffects.register();

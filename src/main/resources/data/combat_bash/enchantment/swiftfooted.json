@@ -1,0 +1,44 @@
+{
+  "description": {
+    "translate": "enchantment.combat_bash.swiftfooted"
+  },
+  "max_level": 3,
+  "weight": 4,
+  "supported_items": "#minecraft:enchantable/leg_armor",
+  "exclusive_set": "#combat_bash:exclusive_set/swiftfooted",
+  "slots": [
+    "legs"
+  ],
+  "effects": {
+    "combat_bash:on_roll": [
+      {
+        "effect": {
+          "type": "minecraft:apply_mob_effect",
+          "min_amplifier": {
+            "type": "minecraft:linear",
+            "base": 0,
+            "per_level_above_first": 1
+          },
+          "max_amplifier": {
+            "type": "minecraft:linear",
+            "base": 0,
+            "per_level_above_first": 1
+          },
+          "min_duration": 1,
+          "max_duration": 2,
+          "to_apply": "minecraft:speed"
+        }
+      }
+    ]
+  },
+
+  "anvil_cost": 2,
+  "min_cost": {
+    "base": 5,
+    "per_level_above_first": 6
+  },
+  "max_cost": {
+    "base": 11,
+    "per_level_above_first": 6
+  }
+}
