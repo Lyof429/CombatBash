@@ -5,6 +5,9 @@ import net.combat_roll.api.CombatRoll;
 import net.combat_roll.api.event.ServerSideRollEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.lyof.combat_bash.CombatBash;
+import net.lyof.combat_bash.api.EnchantHelper;
+import net.lyof.combat_bash.api.inject.MultiImmunityEntity;
+import net.lyof.combat_bash.api.inject.RollingPlayer;
 import net.lyof.combat_bash.config.ModConfig;
 import net.lyof.combat_bash.effect.ModEffects;
 import net.lyof.combat_bash.effect.custom.RollingEffect;
@@ -38,19 +41,14 @@ public class ModEvents {
     }
 
     public static void onPlayerStartedRolling(ServerPlayer player, Vec3 velocity) {
-        /*int swiftfooted = ModEnchants.getLevel(ModEnchants.SWIFTFOOTED, player);
-        if (swiftfooted > 0)
-            player.addEffect(new MobEffectInstance(MobEffects.SPEED, 20, swiftfooted));*/
+        EnchantHelper.onStartRoll(player);
 
-        float enchantDamage = 0;//ModEnchants.getLevel(ModEnchants.INERTIA, player);
-        if (enchantDamage <= 0 && ModConfig.needsEnchantment.get()) return;
+        if (EnchantHelper.getExtraBashDamage(player) <= 0 && ModConfig.needsEnchantment.get()) return;
 
-        UUID uuid = player.getUUID();
-        if (VELOCITIES.containsKey(uuid))   VELOCITIES.replace(uuid, velocity);
-        else                                VELOCITIES.put(uuid, velocity);
-
+        ((RollingPlayer) player).cbash_setRollVelocity(velocity);
         player.addEffect(new MobEffectInstance(RollingEffect.getHolder(), CombatRollMod.config.roll_duration,
                 0, true, false));
+
         if (ModConfig.rollImmunity.get())
             player.invulnerableTime = CombatRollMod.config.roll_duration + 5;
     }
@@ -58,24 +56,19 @@ public class ModEvents {
     public static boolean onPlayerRollingTick(Player player) {
         BlockPos pos = player.blockPosition();
         List<Entity> entities = player.level().getEntities(player, new AABB(pos).inflate(0.7));
-
-        float damage = ModConfig.damage.get().floatValue() + 0/* ModEnchants.getLevel(ModEnchants.INERTIA, player) * 2*/;
-
-        UUID uuid = player.getUUID();
         boolean result = false;
 
+        float damage = ModConfig.damage.get().floatValue() + EnchantHelper.getExtraBashDamage(player);
+
         for (Entity entity : entities) {
-            if (!(entity instanceof LivingEntity target))
-                continue;
-            if (entity instanceof Player && ModConfig.ignorePlayers.get())
-                continue;
+            if (!(entity instanceof LivingEntity target)) continue;
+            if (entity instanceof Player && ModConfig.ignorePlayers.get()) continue;
 
             result = true;
 
             target.hurt(player.damageSources().playerAttack(player), damage);
 
-            Vec3 velocity = VELOCITIES.getOrDefault(uuid, Vec3.ZERO);
-
+            Vec3 velocity = ((RollingPlayer) player).cbash_getRollVelocity();
             player.setDeltaMovement(velocity.normalize().multiply(
                     -ModConfig.playerKnockback.get(),
                     -ModConfig.playerKnockback.get(),
@@ -98,13 +91,9 @@ public class ModEvents {
         if (player.isSpectator() || world.isClientSide() || !(entity instanceof LivingEntity) || !ModConfig.enableMultiImmun.get())
             return InteractionResult.PASS;
 
-        if (!CombatBash.FRAMES.containsKey(entity.getStringUUID()))
-            CombatBash.FRAMES.put(entity.getStringUUID(), new HashMap<>());
-        if (!CombatBash.FRAMES.get(entity.getStringUUID()).containsKey(player.getStringUUID()))
-            CombatBash.FRAMES.get(entity.getStringUUID()).put(player.getStringUUID(), 0);
-
-        entity.invulnerableTime = CombatBash.FRAMES.get(entity.getStringUUID()).get(player.getStringUUID());
-        CombatBash.FRAMES.get(entity.getStringUUID()).replace(player.getStringUUID(), 20);
+        MultiImmunityEntity multi = (MultiImmunityEntity) entity;
+        entity.invulnerableTime = multi.cbash_getHitFrames(player);
+        multi.cbash_setHitFrames(player, 20);
         return InteractionResult.PASS;
     }
 }

@@ -1,6 +1,7 @@
 package net.lyof.combat_bash.enchant;
 
 import net.lyof.combat_bash.CombatBash;
+import net.minecraft.world.entity.player.Player;
 
 public class ModEnchants {
     public static void register() {
