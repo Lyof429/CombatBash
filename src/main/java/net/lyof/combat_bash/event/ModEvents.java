@@ -1,25 +1,27 @@
 package net.lyof.combat_bash.event;
 
-import net.combatroll.CombatRoll;
-import net.combatroll.api.event.ServerSideRollEvents;
+import net.combat_roll.CombatRollMod;
+import net.combat_roll.api.CombatRoll;
+import net.combat_roll.api.event.ServerSideRollEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.lyof.combat_bash.CombatBash;
-import net.lyof.combat_bash.config.ConfigEntries;
+import net.lyof.combat_bash.config.ModConfig;
 import net.lyof.combat_bash.effect.ModEffects;
+import net.lyof.combat_bash.effect.custom.RollingEffect;
 import net.lyof.combat_bash.enchant.ModEnchants;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -28,72 +30,81 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ModEvents {
-    public static Map<UUID, Vec3d> VELOCITIES = new HashMap<>();
+    public static Map<UUID, Vec3> VELOCITIES = new HashMap<>();
 
     public static void register() {
         ServerSideRollEvents.PLAYER_START_ROLLING.register(ModEvents::onPlayerStartedRolling);
         AttackEntityCallback.EVENT.register(ModEvents::beforeEntityHurt);
     }
 
-    public static void onPlayerStartedRolling(ServerPlayerEntity player, Vec3d velocity) {
-        int swiftfooted = ModEnchants.getLevel(ModEnchants.SWIFTFOOTED, player);
+    public static void onPlayerStartedRolling(ServerPlayer player, Vec3 velocity) {
+        /*int swiftfooted = ModEnchants.getLevel(ModEnchants.SWIFTFOOTED, player);
         if (swiftfooted > 0)
-            player.addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, 20, swiftfooted));
+            player.addEffect(new MobEffectInstance(MobEffects.SPEED, 20, swiftfooted));*/
 
-        if (ModEnchants.getLevel(ModEnchants.INERTIA, player) <= 0 && ConfigEntries.needsEnchantment) return;
+        float enchantDamage = 0;//ModEnchants.getLevel(ModEnchants.INERTIA, player);
+        if (enchantDamage <= 0 && ModConfig.needsEnchantment.get()) return;
 
-        UUID uuid = player.getUuid();
+        UUID uuid = player.getUUID();
         if (VELOCITIES.containsKey(uuid))   VELOCITIES.replace(uuid, velocity);
         else                                VELOCITIES.put(uuid, velocity);
 
-        player.addStatusEffect(new StatusEffectInstance(ModEffects.ROLLING, CombatRoll.config.roll_duration,
+        player.addEffect(new MobEffectInstance(RollingEffect.getHolder(), CombatRollMod.config.roll_duration,
                 0, true, false));
-        if (ConfigEntries.immunity)
-            player.timeUntilRegen = CombatRoll.config.roll_duration + 5;
+        if (ModConfig.rollImmunity.get())
+            player.invulnerableTime = CombatRollMod.config.roll_duration + 5;
     }
 
-    public static boolean onPlayerRollingTick(PlayerEntity player) {
-        BlockPos pos = player.getBlockPos();
-        List<Entity> entities = player.getWorld().getOtherEntities(player, new Box(pos).expand(0.7));
+    public static boolean onPlayerRollingTick(Player player) {
+        BlockPos pos = player.blockPosition();
+        List<Entity> entities = player.level().getEntities(player, new AABB(pos).inflate(0.7));
 
-        float damage = (float) ConfigEntries.damage + ModEnchants.getLevel(ModEnchants.INERTIA, player) * 2;
+        float damage = ModConfig.damage.get().floatValue() + 0/* ModEnchants.getLevel(ModEnchants.INERTIA, player) * 2*/;
 
-        UUID uuid = player.getUuid();
+        UUID uuid = player.getUUID();
         boolean result = false;
 
         for (Entity entity : entities) {
             if (!(entity instanceof LivingEntity target))
                 continue;
-            if (entity instanceof PlayerEntity && ConfigEntries.ignorePlayers)
+            if (entity instanceof Player && ModConfig.ignorePlayers.get())
                 continue;
 
             result = true;
 
-            target.damage(player.getDamageSources().playerAttack(player), damage);
+            target.hurt(player.damageSources().playerAttack(player), damage);
 
-            Vec3d velocity = VELOCITIES.getOrDefault(uuid, Vec3d.ZERO);
+            Vec3 velocity = VELOCITIES.getOrDefault(uuid, Vec3.ZERO);
 
-            player.setVelocity(velocity.normalize().multiply(-ConfigEntries.playerKnockback).add(0, 0.3, 0));
-            target.setVelocity(velocity.normalize().multiply(ConfigEntries.targetKnockback).add(0, 0.3, 0));
-            player.velocityModified = true;
+            player.setDeltaMovement(velocity.normalize().multiply(
+                    -ModConfig.playerKnockback.get(),
+                    -ModConfig.playerKnockback.get(),
+                    -ModConfig.playerKnockback.get())
+                    .add(0, 0.3, 0));
+            target.setDeltaMovement(velocity.normalize().multiply(
+                    ModConfig.targetKnockback.get(),
+                    ModConfig.targetKnockback.get(),
+                    ModConfig.targetKnockback.get())
+                    .add(0, 0.3, 0));
+            player.hasImpulse = true;
 
-            player.addExhaustion((float) ConfigEntries.extraExhaustion);
+            player.causeFoodExhaustion(ModConfig.extraExhaustion.get().floatValue());
         }
         return result;
     }
 
-    public static ActionResult beforeEntityHurt(PlayerEntity player, World world, Hand hand, Entity entity,
-                                                @Nullable EntityHitResult entityHitResult) {
-        if (player.isSpectator() || world.isClient() || !(entity instanceof LivingEntity) || !ConfigEntries.enableMultiImmun)
-            return ActionResult.PASS;
+    public static InteractionResult beforeEntityHurt(Player player, Level world, InteractionHand hand, Entity entity,
+                                                     @Nullable EntityHitResult entityHitResult) {
+        if (player.isSpectator() || world.isClientSide() || !(entity instanceof LivingEntity) || !ModConfig.enableMultiImmun.get())
+            return InteractionResult.PASS;
 
-        if (!CombatBash.FRAMES.containsKey(entity.getUuidAsString()))
-            CombatBash.FRAMES.put(entity.getUuidAsString(), new HashMap<>());
-        if (!CombatBash.FRAMES.get(entity.getUuidAsString()).containsKey(player.getUuidAsString()))
-            CombatBash.FRAMES.get(entity.getUuidAsString()).put(player.getUuidAsString(), 0);
+        if (!CombatBash.FRAMES.containsKey(entity.getStringUUID()))
+            CombatBash.FRAMES.put(entity.getStringUUID(), new HashMap<>());
+        if (!CombatBash.FRAMES.get(entity.getStringUUID()).containsKey(player.getStringUUID()))
+            CombatBash.FRAMES.get(entity.getStringUUID()).put(player.getStringUUID(), 0);
 
-        entity.timeUntilRegen = CombatBash.FRAMES.get(entity.getUuidAsString()).get(player.getUuidAsString());
-        CombatBash.FRAMES.get(entity.getUuidAsString()).replace(player.getUuidAsString(), 20);
-        return ActionResult.PASS;
+        entity.invulnerableTime = CombatBash.FRAMES.get(entity.getStringUUID()).get(player.getStringUUID());
+        CombatBash.FRAMES.get(entity.getStringUUID()).replace(player.getStringUUID(), 20);
+        return InteractionResult.PASS;
     }
 }

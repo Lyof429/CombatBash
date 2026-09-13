@@ -1,53 +1,31 @@
 package net.lyof.combat_bash;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.lcc.sollib.api.common.logger.SolLogger;
+import net.lcc.sollib.api.common.registry.SolModContainer;
 import net.lyof.combat_bash.config.ModConfig;
 import net.lyof.combat_bash.effect.ModEffects;
 import net.lyof.combat_bash.enchant.ModEnchants;
 import net.lyof.combat_bash.event.ModEvents;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Identifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class CombatBash implements ModInitializer {
-    private static final Logger LOGGER = LoggerFactory.getLogger("Combat Bash");
 	public static final String MOD_ID = "combat_bash";
+	public static final SolModContainer MOD = new SolModContainer("Combat Bash", MOD_ID);
 
 	@Override
 	public void onInitialize() {
-		ModConfig.register();
+		MOD.createConfig("combat_bash", 2.0, ModConfig::build);
 		ModEvents.register();
 
 		ModEffects.register();
 		ModEnchants.register();
-
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-			@Override
-			public Identifier getFabricId() {
-				return makeID("reload_listener");
-			}
-
-			@Override
-			public void reload(ResourceManager manager) {
-				ModConfig.register();
-			}
-		});
 	}
 
-	public static Identifier makeID(String name) {
-		return Identifier.of(MOD_ID, name);
-	}
-
-	public static <T> T log(T message) {
-		LOGGER.info(String.valueOf(message));
-		return message;
+	public static SolLogger log() {
+		return MOD.getLogger();
 	}
 
 
