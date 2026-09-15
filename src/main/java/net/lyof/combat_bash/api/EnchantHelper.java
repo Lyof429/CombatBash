@@ -1,6 +1,7 @@
 package net.lyof.combat_bash.api;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import net.lyof.combat_bash.CombatBash;
 import net.lyof.combat_bash.enchant.ModEnchants;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -27,25 +28,28 @@ public class EnchantHelper {
 
     public static float getExtraBashDamage(Player player) {
         float value = 0;
+        if (!(player.level() instanceof ServerLevel server))
+            return value;
+
         ItemStack stack;
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             stack = player.getItemBySlot(slot);
             if (stack.isEmpty())
                 continue;
 
-            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getEnchantments().entrySet()) {
-                if (!enchant.getKey().value().isSupportedItem(stack))
+            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getTagEnchantments().entrySet()) {
+                if (!stack.supportsEnchantment(enchant.getKey()))
                     continue;
 
-                LootContext context = new LootContext.Builder(new LootParams.Builder((ServerLevel) player.level())
+                LootContext context = new LootContext.Builder(new LootParams.Builder(server)
                         .withParameter(LootContextParams.THIS_ENTITY, player)
                         .withParameter(LootContextParams.ENCHANTMENT_LEVEL, enchant.getIntValue())
                         .withParameter(LootContextParams.ORIGIN, player.position())
                         .create(LootContextParamSets.ENCHANTED_ENTITY)).create(Optional.empty());
 
-                for (ConditionalEffect<EnchantmentValueEffect> effect : enchant.getKey().value().getEffects(ModEnchants.BASH_DAMAGE)) {
+                for (ConditionalEffect<EnchantmentValueEffect> effect : enchant.getKey().value().getEffects(ModEnchants.BASH_DAMAGE.get())) {
                     if (effect.matches(context))
-                        effect.effect().process(enchant.getIntValue(), player.getRandom(), value);
+                        value = effect.effect().process(enchant.getIntValue(), player.getRandom(), value);
                 }
             }
         }
@@ -59,8 +63,8 @@ public class EnchantHelper {
             if (stack.isEmpty())
                 continue;
 
-            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getEnchantments().entrySet()) {
-                if (!enchant.getKey().value().isSupportedItem(stack))
+            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getTagEnchantments().entrySet()) {
+                if (!stack.supportsEnchantment(enchant.getKey()))
                     continue;
 
                 LootContext context = new LootContext.Builder(new LootParams.Builder((ServerLevel) player.level())
@@ -69,7 +73,7 @@ public class EnchantHelper {
                         .withParameter(LootContextParams.ORIGIN, player.position())
                         .create(LootContextParamSets.ENCHANTED_ENTITY)).create(Optional.empty());
 
-                for (ConditionalEffect<EnchantmentEntityEffect> effect : enchant.getKey().value().getEffects(ModEnchants.ON_ROLL)) {
+                for (ConditionalEffect<EnchantmentEntityEffect> effect : enchant.getKey().value().getEffects(ModEnchants.ON_ROLL.get())) {
                     if (effect.matches(context))
                         effect.effect().apply((ServerLevel) player.level(), enchant.getIntValue(),
                                 new EnchantedItemInUse(stack, EquipmentSlot.BODY, player),
@@ -86,8 +90,8 @@ public class EnchantHelper {
             if (stack.isEmpty())
                 continue;
 
-            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getEnchantments().entrySet()) {
-                if (!enchant.getKey().value().isSupportedItem(stack))
+            for (Object2IntMap.Entry<Holder<Enchantment>> enchant : stack.getTagEnchantments().entrySet()) {
+                if (!stack.supportsEnchantment(enchant.getKey()))
                     continue;
 
                 LootContext context = new LootContext.Builder(new LootParams.Builder((ServerLevel) player.level())
@@ -99,7 +103,7 @@ public class EnchantHelper {
                         .withParameter(LootContextParams.DIRECT_ATTACKING_ENTITY, player)
                         .create(LootContextParamSets.ENCHANTED_DAMAGE)).create(Optional.empty());
 
-                for (TargetedConditionalEffect<EnchantmentEntityEffect> effect : enchant.getKey().value().getEffects(ModEnchants.ON_BASH_HIT)) {
+                for (TargetedConditionalEffect<EnchantmentEntityEffect> effect : enchant.getKey().value().getEffects(ModEnchants.ON_BASH_HIT.get())) {
                     if (effect.matches(context))
                         effect.effect().apply((ServerLevel) player.level(), enchant.getIntValue(),
                                 new EnchantedItemInUse(stack, EquipmentSlot.BODY, player),

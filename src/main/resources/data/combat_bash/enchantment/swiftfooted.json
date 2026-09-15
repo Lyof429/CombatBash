@@ -25,7 +25,7 @@
             "per_level_above_first": 1
           },
           "min_duration": 1,
-          "max_duration": 2,
+          "max_duration": 1,
           "to_apply": "minecraft:speed"
         }
       }

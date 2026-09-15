@@ -2,7 +2,6 @@ package net.lyof.combat_bash.event;
 
 import net.combat_roll.CombatRollMod;
 import net.combat_roll.api.event.ServerSideRollEvents;
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.lyof.combat_bash.api.EnchantHelper;
 import net.lyof.combat_bash.api.inject.MultiImmunityEntity;
 import net.lyof.combat_bash.api.inject.RollingPlayer;
@@ -20,6 +19,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -27,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@EventBusSubscriber
 public class ModEvents {
     public static void register() {
         ServerSideRollEvents.PLAYER_START_ROLLING.register(ModEvents::onPlayerStartedRolling);
-        AttackEntityCallback.EVENT.register(ModEvents::beforeEntityHurt);
     }
 
     public static void onPlayerStartedRolling(ServerPlayer player, Vec3 velocity) {
@@ -74,21 +77,22 @@ public class ModEvents {
                     ModConfig.targetKnockback.get(),
                     ModConfig.targetKnockback.get())
                     .add(0, 0.3, 0));
-            player.hasImpulse = true;
+            player.hurtMarked = true;
 
             player.causeFoodExhaustion(ModConfig.extraExhaustion.get().floatValue());
         }
         return result;
     }
 
-    public static InteractionResult beforeEntityHurt(Player player, Level world, InteractionHand hand, Entity entity,
-                                                     @Nullable EntityHitResult entityHitResult) {
-        if (player.isSpectator() || world.isClientSide() || !(entity instanceof LivingEntity) || !ModConfig.enableMultiImmun.get())
-            return InteractionResult.PASS;
+    @SubscribeEvent
+    public static void beforeEntityHurt(LivingDamageEvent.Pre event) {
+        if (!(event.getSource().getDirectEntity() instanceof Player player))
+            return;
+        if (player.level().isClientSide() || !ModConfig.enableMultiImmun.get())
+            return;
 
-        MultiImmunityEntity multi = (MultiImmunityEntity) entity;
-        entity.invulnerableTime = multi.cbash_getHitFrames(player);
+        MultiImmunityEntity multi = (MultiImmunityEntity) event.getEntity();
+        event.getEntity().invulnerableTime = multi.cbash_getHitFrames(player);
         multi.cbash_setHitFrames(player, 20);
-        return InteractionResult.PASS;
     }
 }
